@@ -5,7 +5,9 @@
 //   npm run test:progress                                       (stdio, lance dist/index.js)
 //   npm run test:progress -- --url http://localhost:3000/mcp    (Streamable HTTP)
 // Coût : un appel Haiku (environ 1 centime).
+// En HTTP, le token est lu dans MCP_AUTH_TOKEN (.env) et envoyé en Bearer.
 
+import "dotenv/config";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
@@ -45,8 +47,11 @@ const classification = {
 };
 
 const client = new Client({ name: "test-progress", version: "1.0.0" });
+const token = process.env.MCP_AUTH_TOKEN;
 const transport = url
-  ? new StreamableHTTPClientTransport(new URL(url))
+  ? new StreamableHTTPClientTransport(new URL(url), {
+      requestInit: token ? { headers: { Authorization: `Bearer ${token}` } } : {},
+    })
   : new StdioClientTransport({
       command: "node",
       args: ["dist/index.js"],
