@@ -14,7 +14,10 @@ import {
   generateBrokerNotification,
 } from "./tools/generate-notification.js";
 
-import type { ClaimData, ClassificationResult } from "./types/claim.types.js";
+import {
+  ClaimDataSchema,
+  ClassificationResultSchema,
+} from "./types/claim.schemas.js";
 
 // Fabrique : chaque appel retourne une instance McpServer neuve avec les 3 tools.
 // stdio en crée une seule ; le transport HTTP sans état en créera une par requête.
@@ -55,18 +58,15 @@ export function createServer(): McpServer {
     {
       description: classifyClaimTool.description,
       inputSchema: {
-        claimData: z
-          .record(z.string(), z.unknown())
-          .describe("Objet ClaimData retourné par analyze_claim_report"),
+        claimData: ClaimDataSchema,
       },
     },
     async ({ claimData }) => {
-      const claim = claimData as unknown as ClaimData;
       log("info", "server", `Tool appelé : ${classifyClaimTool.name}`, {
-        claimId: claim.claimId,
+        claimId: claimData.claimId,
       });
 
-      const result = await classifyClaimSeverity(claim);
+      const result = await classifyClaimSeverity(claimData);
 
       return {
         content: [
@@ -82,18 +82,13 @@ export function createServer(): McpServer {
     {
       description: generateNotificationTool.description,
       inputSchema: {
-        claimData: z.record(z.string(), z.unknown()).describe("Objet ClaimData"),
-        classification: z
-          .record(z.string(), z.unknown())
-          .describe("Objet ClassificationResult"),
+        claimData: ClaimDataSchema,
+        classification: ClassificationResultSchema,
       },
     },
     async ({ claimData, classification }, extra) => {
-      const claim = claimData as unknown as ClaimData;
-      const classif = classification as unknown as ClassificationResult;
-
       log("info", "server", `Tool appelé : ${generateNotificationTool.name}`, {
-        claimId: claim.claimId,
+        claimId: claimData.claimId,
       });
 
       const progressToken = extra.requestId;
@@ -114,8 +109,8 @@ export function createServer(): McpServer {
       };
 
       const notification = await generateBrokerNotification(
-        claim,
-        classif,
+        claimData,
+        classification,
         sendProgressFn,
       );
 
