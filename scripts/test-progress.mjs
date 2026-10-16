@@ -1,11 +1,17 @@
 // scripts/test-progress.mjs
 //
 // Appelle generate_broker_notification et affiche les progress notifications reçues.
-// Usage : npm run build puis npm run test:progress
+// Usage :
+//   npm run test:progress                                       (stdio, lance dist/index.js)
+//   npm run test:progress -- --url http://localhost:3000/mcp    (Streamable HTTP)
 // Coût : un appel Haiku (environ 1 centime).
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+
+const urlIndex = process.argv.indexOf("--url");
+const url = urlIndex !== -1 ? process.argv[urlIndex + 1] : undefined;
 
 const claimData = {
   claimId: "CLM-TEST-001",
@@ -39,14 +45,16 @@ const classification = {
 };
 
 const client = new Client({ name: "test-progress", version: "1.0.0" });
-const transport = new StdioClientTransport({
-  command: "node",
-  args: ["dist/index.js"],
-  stderr: "ignore",
-});
+const transport = url
+  ? new StreamableHTTPClientTransport(new URL(url))
+  : new StdioClientTransport({
+      command: "node",
+      args: ["dist/index.js"],
+      stderr: "ignore",
+    });
 
 await client.connect(transport);
-console.log("Connecté au serveur, appel de generate_broker_notification...\n");
+console.log(`Connecté via ${url ? `HTTP (${url})` : "stdio"}, appel de generate_broker_notification...\n`);
 
 let received = 0;
 const result = await client.callTool(
