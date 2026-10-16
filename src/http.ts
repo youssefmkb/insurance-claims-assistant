@@ -10,6 +10,7 @@ import express from "express";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { log } from "./utils/logger.js";
 import { createServer } from "./server.js";
+import { renderStatusPage } from "./status-page.js";
 
 const PORT = Number(process.env.PORT ?? 3000);
 const MIN_TOKEN_LENGTH = 32;
@@ -56,6 +57,15 @@ const requireToken: express.RequestHandler = (req, res, next) => {
 
 const app = express();
 app.use(express.json());
+
+// Routes publiques : aucune n'instancie de serveur MCP ni n'appelle Claude.
+app.get("/", (_req, res) => {
+  res.type("html").send(renderStatusPage());
+});
+
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok" });
+});
 
 app.post("/mcp", requireToken, async (req, res) => {
   const server = createServer();
