@@ -5,7 +5,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "node --loader ts-node/esm src/index.ts"
+    "dev": "node --loader ts-node/esm src/index.ts",
+    "test:progress": "node scripts/test-progress.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

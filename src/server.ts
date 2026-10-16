@@ -91,22 +91,25 @@ export function createServer(): McpServer {
         claimId: claimData.claimId,
       });
 
-      const progressToken = extra.requestId;
-      const sendProgressFn = async (
-        progress: number,
-        total: number,
-        message?: string,
-      ) => {
-        await server.server.notification({
-          method: "notifications/progress",
-          params: {
-            progressToken,
-            progress,
-            total,
-            ...(message && { message }),
-          },
-        });
-      };
+      // Le client fournit son propre jeton dans _meta.progressToken.
+      // Sans jeton, il ne veut pas de progression : on n'envoie rien.
+      // extra.sendNotification rattache la notification à la requête en cours,
+      // indispensable en Streamable HTTP où chaque requête a son propre flux.
+      const progressToken = extra._meta?.progressToken;
+      const sendProgressFn =
+        progressToken === undefined
+          ? undefined
+          : async (progress: number, total: number, message?: string) => {
+              await extra.sendNotification({
+                method: "notifications/progress",
+                params: {
+                  progressToken,
+                  progress,
+                  total,
+                  ...(message && { message }),
+                },
+              });
+            };
 
       const notification = await generateBrokerNotification(
         claimData,
