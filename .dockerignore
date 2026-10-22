@@ -1,0 +1,17 @@
+# Secrets : ne jamais les copier dans l'image
+.env
+.env.*
+
+# Reconstruits dans l'image
+node_modules
+dist
+
+# Inutiles à l'exécution
+.git
+.gitignore
+.vscode
+docs
+scripts
+*.md
+Dockerfile
+.dockerignore
