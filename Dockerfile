@@ -23,6 +23,10 @@ FROM node:24-alpine AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
 
+# tini devient le PID 1 et transmet les signaux (Ctrl+C, SIGTERM de Render) à Node,
+# qui sinon les ignorerait et ne s'arrêterait qu'au bout du délai de kill forcé.
+RUN apk add --no-cache tini
+
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
@@ -33,4 +37,5 @@ USER node
 
 # Render fournit PORT au lancement ; 3000 reste la valeur par défaut en local.
 EXPOSE 3000
+ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "dist/http.js"]
