@@ -142,6 +142,8 @@ src/
 
 **A static bearer token, not OAuth.** The MCP spec recommends OAuth 2.1 for remote servers with many users. This one has a single user, so a static token read from an environment variable is the proportionate choice. OAuth would be the next step for a multi-user setup. The server refuses to start without a token of at least 32 characters, so a configuration mistake cannot expose an open endpoint.
 
+**Dependency updates through Dependabot.** Dependabot checks the npm packages and the Docker base image every week, and only proposes versions published at least 14 days earlier. Security fixes skip that delay. Since every push to `main` redeploys on Render, a Dependabot pull request is built and tested locally (`npm run build`, `npm run test:progress`) before it is merged.
+
 **Constant-time token comparison.** The token check uses `crypto.timingSafeEqual` instead of `===`. A regular string comparison stops at the first different character, which in theory lets an attacker guess the token by measuring response times.
 
 ## Setup

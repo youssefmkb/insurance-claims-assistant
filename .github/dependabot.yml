@@ -1,0 +1,28 @@
+# Dependabot version updates.
+# Security updates are enabled separately in the repository settings
+# and are not affected by the cooldown below.
+
+version: 2
+updates:
+  # npm packages (package.json and package-lock.json)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # Only propose versions published at least 14 days ago
+    cooldown:
+      default-days: 14
+    # One weekly PR for minor and patch bumps, separate PRs for majors
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Docker base image (node:24-alpine in the Dockerfile)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 14
