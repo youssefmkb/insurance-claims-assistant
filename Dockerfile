@@ -6,7 +6,7 @@
 # jamais copiés dans l'image.
 
 # ---- Étape 1 : build ----
-FROM node:24-alpine AS build
+FROM node:25-alpine AS build
 WORKDIR /app
 
 # Copier d'abord les manifestes permet à Docker de réutiliser la couche
@@ -19,7 +19,7 @@ COPY src ./src
 RUN npm run build
 
 # ---- Étape 2 : runtime ----
-FROM node:24-alpine AS runtime
+FROM node:25-alpine AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
 
