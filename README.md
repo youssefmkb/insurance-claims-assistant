@@ -33,9 +33,13 @@ The server is deployed on Render and reachable over Streamable HTTP:
 | Health check | `GET /health` |
 | Auth | `Authorization: Bearer <token>` on every `/mcp` request |
 
-This is a portfolio project running as a technical demo. It has no real users, and the token is not public because every call spends my Anthropic credit. To try the tools, run the server locally with your own API key (see [Setup](#setup)).
+This is a portfolio project running as a technical demo. It has no real users, and the token is not public because every tool call spends my Anthropic credit. To try the tools, run the server locally with your own API key (see [Setup](#setup)).
 
 On Render's free plan the service sleeps after 15 minutes without traffic. The first request after that wakes it up, which takes 30 to 60 seconds.
+
+MCP Inspector connected to the deployed server over Streamable HTTP, with the `initialize`, `tools/list` and `tools/call` messages in the protocol log:
+
+![MCP Inspector connected to the Render deployment](docs/images/05-remote-inspector.png)
 
 ### Connecting a client
 
@@ -61,7 +65,7 @@ Or from the command line:
 claude mcp add --transport http insurance-claims https://insurance-claims-mcp.onrender.com/mcp --header "Authorization: Bearer <token>"
 ```
 
-With MCP Inspector, run `npx @modelcontextprotocol/inspector`, choose the Streamable HTTP transport, enter the endpoint URL, and add an `Authorization` header with the value `Bearer <token>`.
+With MCP Inspector, run `npx @modelcontextprotocol/inspector`, add a server with the Streamable HTTP transport and the endpoint URL, then open its Settings and add a custom header named `Authorization` with the value `Bearer <token>`. The value must start with `Bearer` followed by a space. Without a valid header the server answers 401, and the Inspector falls back to an OAuth flow that this server does not implement (it fails on `/register`).
 
 The same configuration works against a local server on `http://localhost:3000/mcp`.
 
@@ -118,7 +122,7 @@ src/
 ├── utils/
 │   ├── anthropic-client.ts        Shared SDK instance + model config
 │   ├── logger.ts                  stderr logging
-│   └── progress.ts                Progress notification helper
+│   └── progress.ts                Progress callback type
 └── types/
     ├── claim.types.ts
     └── claim.schemas.ts           Zod schemas for tool inputs
@@ -142,7 +146,7 @@ src/
 
 ## Setup
 
-Requires Node.js 18+ and an Anthropic API key.
+Requires Node.js 18+ (developed and tested on Node.js 24) and an Anthropic API key.
 
 ```bash
 git clone https://github.com/youssefmkb/insurance-claims-assistant
