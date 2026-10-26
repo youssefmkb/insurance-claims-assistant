@@ -18,6 +18,14 @@ updates:
         update-types:
           - "minor"
           - "patch"
+        # 0.x package: a minor bump may break the API, so it always gets its own PR
+        exclude-patterns:
+          - "@anthropic-ai/sdk"
+    ignore:
+      # Types must match the Node.js runtime (24 in the Dockerfile), bumped by hand with it
+      - dependency-name: "@types/node"
+        update-types:
+          - "version-update:semver-major"
 
   # Docker base image (node:24-alpine in the Dockerfile)
   - package-ecosystem: "docker"
@@ -26,3 +34,8 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 14
+    ignore:
+      # Stay on the current LTS line; odd majors never become LTS. Move to the next LTS by hand.
+      - dependency-name: "node"
+        update-types:
+          - "version-update:semver-major"
