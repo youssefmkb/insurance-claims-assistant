@@ -33,7 +33,6 @@ ${input.rawText}
 
 <output_format>
 {
-  "claimId": "${input.claimId}",
   "reportDate": "YYYY-MM-DD",
   "vehicles": [
     {
@@ -59,15 +58,14 @@ ${input.rawText}
     }
   ],
   "circumstances": "description des circonstances en une phrase",
-  "witnesses": ["nom et contact si disponible"],
-  "rawText": "${input.rawText.replace(/"/g, '\\"')}"
+  "witnesses": ["nom et contact si disponible"]
 }
 </output_format>
 
 <constraints>
 - Si une information est absente, utilise une chaîne vide "" ou un tableau vide []
 - Ne jamais inventer d'informations non présentes dans le texte
-- Le champ rawText doit contenir le texte original tel quel
+- Ne recopie ni l'identifiant ni le texte du constat : le code les ajoute lui-même
 - injuries = true uniquement si blessures explicitement mentionnées
 </constraints>
 `;

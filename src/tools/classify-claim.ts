@@ -102,6 +102,7 @@ try {
 
   const result: ClassificationResult = {
     severity: judgeVerdict.finalSeverity,
+    initialSeverity: haikuResult.severity,
     confidence: haikuResult.confidence,
     reasoning: haikuResult.reasoning,
     judgeVerdict,

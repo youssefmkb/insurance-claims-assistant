@@ -37,7 +37,8 @@ export type ClaimSeverity =
   | "URGENT_ESCALATION";
 
 export interface ClassificationResult {
-  severity: ClaimSeverity;
+  severity: ClaimSeverity; // décision finale, celle du juge
+  initialSeverity?: ClaimSeverity; // proposition de Haiku, gardée pour la traçabilité
   confidence: number; // 0 à 1
   reasoning: string;
   judgeVerdict: JudgeVerdict;

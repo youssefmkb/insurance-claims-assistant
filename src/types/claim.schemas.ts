@@ -54,6 +54,9 @@ const JudgeVerdictSchema = z.object({
 export const ClassificationResultSchema = z
   .object({
     severity: ClaimSeveritySchema,
+    initialSeverity: ClaimSeveritySchema.optional().describe(
+      "Proposition de Haiku avant le verdict du juge, gardée pour la traçabilité",
+    ),
     confidence: z.number().min(0).max(1),
     reasoning: z.string(),
     judgeVerdict: JudgeVerdictSchema,

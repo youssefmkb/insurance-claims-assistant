@@ -35,9 +35,15 @@ export async function analyzeClaimReport(
 
   const response = await anthropic.messages.create({
     model: MODELS.fast,
-    max_tokens: 1024,
+    max_tokens: 2048,
     messages: [{ role: "user", content: prompt }],
   });
+
+  // Une réponse coupée par max_tokens donnerait un JSON incomplet : on le signale clairement.
+  if (response.stop_reason === "max_tokens") {
+    log("error", "analyze-claim", "Réponse tronquée par max_tokens", { claimId });
+    throw new Error("Réponse tronquée : le constat est trop long pour être extrait en une fois");
+  }
 
   const content = response.content[0];
   if (content.type !== "text") {
@@ -56,5 +62,6 @@ export async function analyzeClaimReport(
     throw new Error(`Impossible de parser la réponse JSON : ${content.text}`);
   }
 
-  return claimData;
+  // Le texte source et l'identifiant viennent de l'appelant, jamais d'une recopie par le LLM.
+  return { ...claimData, claimId, rawText };
 }
