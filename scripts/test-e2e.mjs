@@ -70,7 +70,7 @@ Croquis : véhicule A en marche arrière, véhicule B stationné perpendiculaire
     claimId: "CLM-2026-10527",
     expect: {
       injuries: false,
-      allowedSeverities: ["REVIEW_NEEDED", "URGENT_ESCALATION"],
+      allowedSeverities: ["REVIEW_NEEDED"],
       minVehicles: 2,
     },
     rawText: `CONSTAT AMIABLE D'ACCIDENT AUTOMOBILE

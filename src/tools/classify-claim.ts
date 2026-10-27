@@ -48,9 +48,10 @@ Circonstances : ${claimData.circumstances}
 </claim>
 
 <classification_rules>
-- AUTO_PROCESS : dommages mineurs, aucun blessé, circonstances claires
-- REVIEW_NEEDED : dommages modérés OU circonstances ambiguës OU incertitude
-- URGENT_ESCALATION : blessés confirmés OU dommages sévères OU litige probable
+- AUTO_PROCESS : dommages mineurs, aucun blessé, circonstances claires et non contestées
+- REVIEW_NEEDED : dommages modérés OU circonstances ambiguës OU versions contradictoires entre les parties OU incertitude
+- URGENT_ESCALATION : blessés confirmés OU dommages sévères OU indices de fraude (dégâts incohérents avec le récit, déclarations qui changent, témoin lié à une partie)
+- Un désaccord entre les parties, sans blessé, sans dommage sévère et sans indice de fraude, relève de REVIEW_NEEDED et jamais de URGENT_ESCALATION
 </classification_rules>
 
 <output_format>
