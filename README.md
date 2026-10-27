@@ -83,7 +83,13 @@ Claude Haiku takes the structured claim and returns a severity plus a confidence
 }
 ```
 
-Sonnet doesn't ask Haiku to retry. It overrides directly, and `finalSeverity` is what the pipeline uses downstream. The judge always has the last word.
+Sonnet doesn't ask Haiku to retry. It overrides directly, and `finalSeverity` is what the pipeline uses downstream. The judge always has the last word. Haiku's original proposal is still returned as `initialSeverity`, so a correction by the judge stays traceable.
+
+Both models follow the same triage rules:
+
+- `AUTO_PROCESS`: minor damage, no injuries, clear and undisputed circumstances.
+- `REVIEW_NEEDED`: moderate damage, ambiguous circumstances, or drivers giving contradicting versions.
+- `URGENT_ESCALATION`: confirmed injuries, severe damage, or signs of fraud. A dispute alone never escalates.
 
 The reason this pattern is here and not somewhere cheaper: in claims processing, a misclassification isn't a cosmetic error. An `URGENT_ESCALATION` claim with injuries routed to `AUTO_PROCESS` means someone waits longer for assistance. Haiku is cheap enough to run on every claim; Sonnet costs more but only runs once, as a gate.
 
@@ -126,6 +132,10 @@ src/
 └── types/
     ├── claim.types.ts
     └── claim.schemas.ts           Zod schemas for tool inputs
+
+scripts/
+├── test-e2e.mjs                   Three realistic reports through all three tools
+└── test-progress.mjs              Progress notifications of tool 3
 ```
 
 ### A few decisions worth explaining
@@ -142,7 +152,7 @@ src/
 
 **A static bearer token, not OAuth.** The MCP spec recommends OAuth 2.1 for remote servers with many users. This one has a single user, so a static token read from an environment variable is the proportionate choice. OAuth would be the next step for a multi-user setup. The server refuses to start without a token of at least 32 characters, so a configuration mistake cannot expose an open endpoint.
 
-**Dependency updates through Dependabot.** Dependabot checks the npm packages and the Docker base image every week, and only proposes versions published at least 14 days earlier. Security fixes skip that delay. Since every push to `main` redeploys on Render, a Dependabot pull request is built and tested locally (`npm run build`, `npm run test:progress`) before it is merged.
+**Dependency updates through Dependabot.** Dependabot checks the npm packages and the Docker base image every week, and only proposes versions published at least 14 days earlier. Security fixes skip that delay. Since every push to `main` redeploys on Render, a Dependabot pull request is built and tested locally (`npm run build`, `npm run test:progress`, and `npm run test:e2e` when the Anthropic or MCP SDK changes) before it is merged.
 
 **Constant-time token comparison.** The token check uses `crypto.timingSafeEqual` instead of `===`. A regular string comparison stops at the first different character, which in theory lets an attacker guess the token by measuring response times.
 
@@ -182,13 +192,6 @@ Test it with MCP Inspector:
 npx @modelcontextprotocol/inspector node dist/index.js
 ```
 
-Run the full chain with progress notifications:
-
-```bash
-npm run test:progress                                       # stdio
-npm run test:progress -- --url http://localhost:3000/mcp    # HTTP, token read from .env
-```
-
 ### Docker
 
 ```bash
@@ -197,6 +200,28 @@ docker run --rm --env-file .env -p 3000:3000 insurance-claims-mcp
 ```
 
 The image is built in two stages, so only the compiled JavaScript and production dependencies ship. It runs as a non-root user, with tini as init process for clean shutdowns. Secrets are injected when the container starts and never copied into the image.
+
+## Testing
+
+Two scripts act as MCP clients against a real server. Both call the Anthropic API, so they cost real money. Over HTTP they read the token from `MCP_AUTH_TOKEN`.
+
+```bash
+npm run test:e2e                                            # stdio, about 5 cents per scenario
+npm run test:e2e -- --url http://localhost:3000/mcp         # HTTP
+npm run test:e2e -- --only motard-blesse                    # a single scenario
+npm run test:progress                                       # tool 3 only, about 1 cent
+```
+
+`test:e2e` sends three detailed French accident reports through all three tools: a parking lot scrape, a crash at traffic lights where the drivers give contradicting versions, and a motorcyclist hospitalized after a priority violation. Each one is written like a real report, with ticked boxes, witnesses and the drivers' own statements. The script never compares LLM wording, since it changes from one run to the next. It checks business properties instead: the output matches the Zod schemas, injuries are detected, each claim lands in its expected severity, and the notification carries the claim number.
+
+`test:progress` only calls `generate_broker_notification` and checks the progress notifications. It is the quick check after a small change or a Dependabot update.
+
+The realistic reports found two problems that one-line examples never showed:
+
+- **Truncated extraction.** The extraction prompt asked the model to copy the whole report back into its JSON. On a real report the answer hit `max_tokens` and the JSON was cut in the middle. The code now adds the original text itself, and a truncated answer raises an explicit error.
+- **An ambiguous triage rule.** On the traffic lights case, the judge flipped between `REVIEW_NEEDED` and `URGENT_ESCALATION` across runs, because a dispute matched both "ambiguous circumstances" and "probable dispute". The rule now says that contradicting versions alone mean `REVIEW_NEEDED`. After the change the case gave the same answer in 5 runs out of 5.
+
+There is no CI and no unit test suite yet. These scripts are run by hand before every push.
 
 ## Screenshots
 
