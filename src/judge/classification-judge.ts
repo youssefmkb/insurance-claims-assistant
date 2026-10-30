@@ -45,8 +45,10 @@ Confiance : ${Math.round(confidence * 100)}%
 
 <classification_rules>
 - AUTO_PROCESS : dommages mineurs, aucun blessé, circonstances claires et non contestées
-- REVIEW_NEEDED : dommages modérés OU circonstances ambiguës OU versions contradictoires entre les parties OU confiance < 70%
-- URGENT_ESCALATION : blessés confirmés OU dommages sévères OU indices de fraude (dégâts incohérents avec le récit, déclarations qui changent, témoin lié à une partie)
+- REVIEW_NEEDED : dommages modérés OU circonstances ambiguës OU versions contradictoires entre les parties (deux parties qui ne sont pas d'accord entre elles) OU confiance < 70%
+- URGENT_ESCALATION : blessés confirmés OU dommages sévères OU au moins un indice de fraude (dégâts incohérents avec le récit, un même déclarant qui modifie sa propre version, témoin lié à une partie)
+- Un seul indice de fraude suffit pour URGENT_ESCALATION, même sans blessé ni dommage sévère
+- Si plusieurs catégories s'appliquent, retiens toujours la plus grave
 - Un désaccord entre les parties, sans blessé, sans dommage sévère et sans indice de fraude, relève de REVIEW_NEEDED et jamais de URGENT_ESCALATION
 </classification_rules>
 

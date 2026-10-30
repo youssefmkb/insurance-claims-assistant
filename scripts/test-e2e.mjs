@@ -134,6 +134,41 @@ OBSERVATIONS
 A : "Je n'ai pas vu la moto arriver sur ma droite, le soleil couchant me gênait. Je me suis engagé dans le carrefour sans m'arrêter."
 Témoin : "La moto roulait normalement, la voiture n'a pas marqué l'arrêt et lui a coupé la route."`,
   },
+  {
+    id: "fraude-suspecte",
+    title: "Choc arrière déclaré tardivement, indices de fraude sans blessé",
+    claimId: "CLM-2026-10612",
+    expect: {
+      injuries: false,
+      allowedSeverities: ["URGENT_ESCALATION"],
+      minVehicles: 2,
+    },
+    rawText: `CONSTAT AMIABLE D'ACCIDENT AUTOMOBILE
+Date de l'accident : 12/10/2026, vers 23h40. Date de la déclaration à l'assureur : 21/10/2026, soit 9 jours après les faits.
+Lieu : parking de la zone d'activités des Hauts-Champs, 59200 Tourcoing. Parking désert, éclairage public éteint, aucune caméra.
+Blessés, même légers : NON. Dégâts matériels à des véhicules autres que A et B : NON. Dégâts à des objets autres que des véhicules : NON.
+Témoins : M. Yanis Haddad, 17 rue de Lille, 59200 Tourcoing, tél 06 00 00 62 18, passager du véhicule A et frère du conducteur A.
+
+VÉHICULE A
+Conducteur : M. Samir Haddad, né le 25/07/1993, 17 rue de Lille, 59200 Tourcoing. Tél : 06 00 00 62 05.
+Véhicule : Audi A3 Sportback, immatriculée GT-705-RD, achetée d'occasion le 21/09/2026, trois semaines avant l'accident.
+Assureur : Matmut, contrat n° MAT-61207-344, souscrit le 21/09/2026.
+Circonstances cochées : case 1 (en stationnement, à l'arrêt), rayée puis remplacée par la case 3 (roulait dans le même sens et sur la même file).
+Point de choc initial déclaré : arrière. Dégâts apparents : aile avant gauche enfoncée, portières avant et arrière gauches rayées et déformées, rétroviseur gauche arraché. Le pare-choc arrière ne présente aucune trace.
+
+VÉHICULE B
+Conducteur : M. Damien Leroux, né le 03/02/1987, 9 avenue Foch, 59100 Roubaix. Tél : 06 00 00 19 76.
+Véhicule : Dacia Duster, immatriculé FN-448-JA.
+Assureur : GMF, contrat n° GMF-30981-552.
+Circonstances cochées : case 8 (heurtait à l'arrière, en roulant dans le même sens et sur la même file).
+Point de choc initial : avant. Dégâts apparents : pare-choc avant légèrement rayé, aucune déformation.
+
+OBSERVATIONS
+A : première version, "J'étais garé, moteur coupé, quand B m'a percuté par l'arrière." Version corrigée sur le même constat : "Je roulais lentement pour sortir du parking quand B m'a percuté par l'arrière."
+B : "J'ai à peine touché l'arrière de la voiture A en manœuvrant, à très faible allure. Je ne comprends pas les dégâts sur le côté gauche."
+Témoin (passager de A, frère du conducteur) : "Mon frère roulait doucement, la Dacia nous a foncé dedans."
+Croquis : véhicule B derrière le véhicule A, choc arrière. Le constat est signé par les deux conducteurs, B a ajouté la mention "dégâts côté gauche contestés".`,
+  },
 ];
 
 const parseJson = (text) => JSON.parse(text);
