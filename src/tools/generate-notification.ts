@@ -1,4 +1,4 @@
-import { anthropic, MODELS } from "../utils/anthropic-client.js";
+import { anthropic, MODELS, assertNotTruncated } from "../utils/anthropic-client.js";
 import { log } from "../utils/logger.js";
 import type { SendProgressFn } from "../utils/progress.js";
 import type { ClaimData, ClassificationResult, NotificationPayload } from "../types/claim.types.js";
@@ -104,9 +104,11 @@ Service Gestion Sinistres Automobiles
 
   const response = await anthropic.messages.create({
     model: MODELS.fast,
-    max_tokens: 512,
+    max_tokens: 1024,
     messages: [{ role: "user", content: notificationPrompt }],
   });
+
+  assertNotTruncated(response, "generate-notification");
 
   const content = response.content[0];
   if (content.type !== "text") {

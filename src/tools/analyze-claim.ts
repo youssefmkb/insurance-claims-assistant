@@ -1,4 +1,4 @@
-import { anthropic, MODELS } from "../utils/anthropic-client.js";
+import { anthropic, MODELS, assertNotTruncated } from "../utils/anthropic-client.js";
 import { log } from "../utils/logger.js";
 import { buildClaimExtractionPrompt } from "../skills/claim-extraction.skill.js";
 import type { ClaimData } from "../types/claim.types.js";
@@ -39,11 +39,7 @@ export async function analyzeClaimReport(
     messages: [{ role: "user", content: prompt }],
   });
 
-  // Une réponse coupée par max_tokens donnerait un JSON incomplet : on le signale clairement.
-  if (response.stop_reason === "max_tokens") {
-    log("error", "analyze-claim", "Réponse tronquée par max_tokens", { claimId });
-    throw new Error("Réponse tronquée : le constat est trop long pour être extrait en une fois");
-  }
+  assertNotTruncated(response, "analyze-claim");
 
   const content = response.content[0];
   if (content.type !== "text") {

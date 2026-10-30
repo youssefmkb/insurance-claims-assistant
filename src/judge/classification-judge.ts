@@ -1,4 +1,4 @@
-import { anthropic, MODELS } from "../utils/anthropic-client.js";
+import { anthropic, MODELS, assertNotTruncated } from "../utils/anthropic-client.js";
 import { log } from "../utils/logger.js";
 import type {
   ClaimData,
@@ -61,9 +61,11 @@ Confiance : ${Math.round(confidence * 100)}%
 
   const response = await anthropic.messages.create({
     model: MODELS.judge,
-    max_tokens: 512,
+    max_tokens: 1024,
     messages: [{ role: "user", content: judgePrompt }],
   });
+
+  assertNotTruncated(response, "classification-judge");
 
   const content = response.content[0];
   if (content.type !== "text") {

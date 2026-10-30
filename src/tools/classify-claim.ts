@@ -1,4 +1,4 @@
-import { anthropic, MODELS } from "../utils/anthropic-client.js";
+import { anthropic, MODELS, assertNotTruncated } from "../utils/anthropic-client.js";
 import { log } from "../utils/logger.js";
 import { runClassificationJudge } from "../judge/classification-judge.js";
 import type {
@@ -65,9 +65,11 @@ Circonstances : ${claimData.circumstances}
 
   const haikuResponse = await anthropic.messages.create({
     model: MODELS.fast,
-    max_tokens: 256,
+    max_tokens: 512,
     messages: [{ role: "user", content: haikusPrompt }],
   });
+
+  assertNotTruncated(haikuResponse, "classify-claim");
 
   const haikuContent = haikuResponse.content[0];
   if (haikuContent.type !== "text") {
